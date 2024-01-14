@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ca.dtadmi</groupId>
-    <artifactId>spring-tiny-link-generator</artifactId>
+    <artifactId>spring-tiny-link-generator-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Spring Tiny Link Generator</name>
     <description>Spring Tiny Link Generator</description>

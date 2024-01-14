@@ -81,47 +81,4 @@ public class UrlPairDao implements Dao<UrlPair> {
             throw new FirestoreExcecutionException(e.getMessage(), e);
         }
     }
-
-    @Override
-    public void delete(String longUrl) {
-        try {
-            // asynchronously delete a document
-            ApiFuture<WriteResult> writeResult = FirebaseInitialization.getUrlsCollection().document(longUrl).delete();
-
-            logger.debug("Delete time : {}", writeResult.get().getUpdateTime());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            throw new FirestoreExcecutionException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void deleteAll() {
-        List<UrlPair> urlPairs = getAll().stream().toList();
-        if(!urlPairs.isEmpty()) {
-            urlPairs.forEach(urlPair -> delete(urlPair.getLongUrl()));
-        }
-    }
-
-    public void deleteAllFromCollection() {
-        try {
-            int batchSize = 1;
-            // retrieve a small batch of documents to avoid out-of-memory errors
-            ApiFuture<QuerySnapshot> future = FirebaseInitialization.getUrlsCollection().limit(batchSize).get();
-            int deleted = 0;
-            // future.get() blocks on document retrieval
-            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-            for (QueryDocumentSnapshot document : documents) {
-                document.getReference().delete();
-                ++deleted;
-            }
-            logger.debug("Number of documents deleted: {}", deleted);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            throw new FirestoreExcecutionException(e.getMessage(), e);
-        }
-
-    }
 }

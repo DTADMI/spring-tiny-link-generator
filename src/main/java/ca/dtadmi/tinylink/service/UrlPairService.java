@@ -42,13 +42,4 @@ public class UrlPairService {
     public void create(UrlPair urlPair) {
         urlPairDao.save(urlPair);
     }
-
-    public void removeAll() {
-        urlPairDao.deleteAll();
-    }
-
-    public void remove(String longUrl) {
-        urlPairDao.delete(longUrl);
-    }
-
 }
