@@ -1,6 +1,6 @@
 package ca.dtadmi.tinylink.dao;
 
-import ca.dtadmi.tinylink.exceptions.FirestoreExcecutionException;
+import ca.dtadmi.tinylink.exception.ApiRuntimeException;
 import ca.dtadmi.tinylink.firebase.FirebaseInitialization;
 import ca.dtadmi.tinylink.model.UrlPair;
 import ca.dtadmi.tinylink.service.MarshallService;
@@ -19,9 +19,9 @@ public class UrlPairDao implements Dao<UrlPair> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public Optional<UrlPair> get(String longUrl) {
+    public Optional<UrlPair> get(String id) {
         try {
-            DocumentReference docRef = FirebaseInitialization.getUrlsCollection().document(longUrl);
+            DocumentReference docRef = FirebaseInitialization.getUrlPairCollection().document(id);
             // asynchronously retrieve the document
             ApiFuture<DocumentSnapshot> future = docRef.get();
 
@@ -38,7 +38,7 @@ public class UrlPairDao implements Dao<UrlPair> {
             Thread.currentThread().interrupt();
             return Optional.empty();
         } catch (ExecutionException e) {
-            throw new FirestoreExcecutionException(e.getMessage(), e);
+            throw new ApiRuntimeException(e.getMessage(), new Date(), e);
         }
     }
 
@@ -46,10 +46,14 @@ public class UrlPairDao implements Dao<UrlPair> {
     public Collection<UrlPair> getAll() {
         try {
             // asynchronously retrieve all documents
-            ApiFuture<QuerySnapshot> future = FirebaseInitialization.getUrlsCollection().get();
+            ApiFuture<QuerySnapshot> future = FirebaseInitialization.getUrlPairCollection().get();
             // future.get() blocks on response
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-            return documents.stream().map((QueryDocumentSnapshot document) -> document.toObject(UrlPair.class))
+            return documents.stream().map((QueryDocumentSnapshot document) -> {
+                UrlPair urlPair = document.toObject(UrlPair.class);
+                urlPair.setId(urlPair.getId());
+                return urlPair;
+                    })
                     .toList()
                     .stream()
                     .filter(Objects::nonNull)
@@ -58,27 +62,52 @@ public class UrlPairDao implements Dao<UrlPair> {
             Thread.currentThread().interrupt();
             return new ArrayList<>();
         } catch (ExecutionException e) {
-            throw new FirestoreExcecutionException(e.getMessage(), e);
+            throw new ApiRuntimeException(e.getMessage(), new Date(), e);
         }
     }
 
     @Override
     public UrlPair save(UrlPair urlPair) {
-        try {
+        try{
             UrlPair newUrlPair = new UrlPair(urlPair);
             // Add document data with long url as id.
-            DocumentReference addedDocRef = FirebaseInitialization.getUrlsCollection().document(newUrlPair.getLongUrl());
-            ApiFuture<WriteResult> result = addedDocRef.set(newUrlPair);
-            WriteResult writeResult = result.get();
-            logger.debug("Document added at: {}", writeResult.getUpdateTime());
+            ApiFuture<DocumentReference> addedDocRef = FirebaseInitialization.getUrlPairCollection().add(newUrlPair);
+            logger.debug("Document added with id: {}", addedDocRef.get().getId());
 
+            // Update an existing document
+            DocumentReference docRef = FirebaseInitialization.getUrlPairCollection().document(addedDocRef.get().getId());
 
-            return MarshallService.getUrlPairFromFirestore(addedDocRef.get().get().getData());
+            // (async) Update one field
+            docRef.update("id", addedDocRef.get().getId());
+            newUrlPair.setId(docRef.getId());
+            return newUrlPair;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return null;
         } catch (ExecutionException e) {
-            throw new FirestoreExcecutionException(e.getMessage(), e);
+            throw new ApiRuntimeException(e.getMessage(), new Date(), e);
+        }
+    }
+
+    @Override
+    public void delete(String id) {
+        try {
+            // asynchronously delete a document
+            ApiFuture<WriteResult> writeResult = FirebaseInitialization.getUrlPairCollection().document(id).delete();
+
+            logger.debug("Delete time : {}", writeResult.get().getUpdateTime());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new ApiRuntimeException(e.getMessage(), new Date(), e);
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        List<UrlPair> urlPairs = getAll().stream().toList();
+        if(!urlPairs.isEmpty()) {
+            urlPairs.forEach(urlPair -> delete(urlPair.getId()));
         }
     }
 }

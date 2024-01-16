@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UrlPair {
 
+    private String id;
     private String longUrl;
     private String shortUrl;
 

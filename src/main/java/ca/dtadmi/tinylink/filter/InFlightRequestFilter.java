@@ -1,4 +1,4 @@
-package ca.dtadmi.tinylink.filters;
+package ca.dtadmi.tinylink.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletResponse;

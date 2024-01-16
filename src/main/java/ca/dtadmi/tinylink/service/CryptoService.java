@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 public class CryptoService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final String ALGO = "MD5";
-    private static final String BASE62_CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String BASE62_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
 
     public String base62EncodeLong(long number) {
         StringBuilder sb = new StringBuilder();
