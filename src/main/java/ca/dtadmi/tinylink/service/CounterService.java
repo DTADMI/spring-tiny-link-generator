@@ -30,10 +30,6 @@ public class CounterService {
     }
     public Integer getCountFromZookeeper() {
         try (CuratorFramework client = CuratorFrameworkFactory.newClient(zookeeperUrl + ":" + zookeeperPort, 10000, 10000, new RetryNTimes(3, 1000))) {
-            //client = CuratorFrameworkFactory.builder().connectString(zookeeperUrl + ":" + zookeeperPort).retryPolicy(new RetryNTimes(3, 1000)).build();
-            /*CuratorFramework client = CuratorFrameworkFactory.newClient(
-                    zookeeperUrl+":"+zookeeperPort,
-                    new RetryNTimes(2, 1000))*/
             client.start();
             client.blockUntilConnected();
             return counter(client);

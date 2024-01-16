@@ -1,7 +1,6 @@
 package ca.dtadmi.tinylink.controller;
 
 import ca.dtadmi.tinylink.exception.ApiRuntimeException;
-import ca.dtadmi.tinylink.exception.FirestoreExecutionException;
 import ca.dtadmi.tinylink.model.UrlPair;
 import ca.dtadmi.tinylink.service.CounterService;
 import ca.dtadmi.tinylink.service.CryptoService;

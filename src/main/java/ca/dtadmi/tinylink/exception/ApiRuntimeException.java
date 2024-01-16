@@ -2,7 +2,6 @@ package ca.dtadmi.tinylink.exception;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import java.util.Date;
