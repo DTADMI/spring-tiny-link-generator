@@ -1,5 +1,6 @@
 package ca.dtadmi.tinylink.controller;
 
+import ca.dtadmi.tinylink.dto.PaginatedUrlPairsResultDto;
 import ca.dtadmi.tinylink.exception.ApiRuntimeException;
 import ca.dtadmi.tinylink.model.UrlPair;
 import ca.dtadmi.tinylink.service.CounterService;
@@ -42,10 +43,10 @@ public class UrlPairController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<UrlPair>> getMostRecentlyAddedUrlPairs(@RequestParam(defaultValue = "1") String page, @RequestParam(defaultValue = "1") String limit) throws ApiRuntimeException {
+    public ResponseEntity<PaginatedUrlPairsResultDto> getMostRecentlyAddedUrlPairs(@RequestParam(defaultValue = "1") String page, @RequestParam(defaultValue = "1") String limit) throws ApiRuntimeException {
         List<UrlPair> results = urlPairService.findAll();
         List<UrlPair> mostRecentResults = MarshallService.mostRecentResults(results, maxNumberHistoryResults);
-        List<UrlPair> paginatedMostRecentResults = MarshallService.paginateResults(page, limit, mostRecentResults);
+        PaginatedUrlPairsResultDto paginatedMostRecentResults = MarshallService.paginateResults(page, limit, mostRecentResults);
         return new ResponseEntity<>(paginatedMostRecentResults, HttpStatus.OK);
     }
 
