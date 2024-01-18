@@ -19,10 +19,23 @@ public class MarshallService {
             return null;
         }
         UrlPair urlPair = new UrlPair();
+        urlPair.setId((String) serializedData.get("id"));
         urlPair.setLongUrl((String) serializedData.get("longUrl"));
         urlPair.setShortUrl((String) serializedData.get("shortUrl"));
+        urlPair.setCreationDate((String) serializedData.get("creationDate"));
 
         return urlPair;
+    }
+
+    public static List<UrlPair> mostRecentResults(List<UrlPair> urlPairs, int maxNumberHistoryResults) {
+        if(urlPairs.isEmpty()) {
+            return urlPairs;
+        }
+        List<UrlPair> resultsData = new ArrayList<>(urlPairs);
+
+        return resultsData.stream()
+                .sorted(Comparator.comparing((UrlPair urlPair) -> new Date(urlPair.getCreationDate()).getTime()).reversed())
+                .limit(maxNumberHistoryResults).toList();
     }
 
     public static List<UrlPair> paginateResults(String page, String limit, List<UrlPair> urlPairs) {

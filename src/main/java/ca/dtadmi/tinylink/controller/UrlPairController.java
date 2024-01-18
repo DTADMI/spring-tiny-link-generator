@@ -29,6 +29,9 @@ public class UrlPairController {
     @Value("${server.base.url}")
     private String serverBaseUrl;
 
+    @Value("${max.number.history.results}")
+    private int maxNumberHistoryResults;
+
     @Value("${tiny.link.size}")
     private int tinyLinkSize;
 
@@ -39,9 +42,9 @@ public class UrlPairController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<UrlPair>> getUrlPairs(@RequestParam(defaultValue = "1") String page, @RequestParam(defaultValue = "1") String limit) throws ApiRuntimeException {
+    public ResponseEntity<List<UrlPair>> getMostRecentlyAddedUrlPairs() throws ApiRuntimeException {
         List<UrlPair> results = urlPairService.findAll();
-        results = MarshallService.paginateResults(page, limit, results);
+        results = MarshallService.mostRecentResults(results, maxNumberHistoryResults);
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
@@ -57,7 +60,8 @@ public class UrlPairController {
         }
         int count = this.counterService.getCountFromZookeeper();
         String encryptedValue = this.cryptoService.base62EncodeLong(count);
-        //Might be useless to substring since there are 62^tinyLinkSize possible results, even at 1000 shorts urls generated per second, it would take more than 26M years to reach the end...
+        // Might be useless to substring since there are 62^tinyLinkSize possible results,
+        // even at 1000 shorts urls generated per second, it would take more than 26Ml years to reach the end...
         String shortUrl = serverBaseUrl + encryptedValue.substring(0, Math.min(encryptedValue.length(), tinyLinkSize));
         urlPair.setShortUrl(shortUrl);
         this.urlPairService.create(urlPair);
