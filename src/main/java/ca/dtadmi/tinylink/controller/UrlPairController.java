@@ -4,6 +4,7 @@ import ca.dtadmi.tinylink.exception.ApiRuntimeException;
 import ca.dtadmi.tinylink.model.UrlPair;
 import ca.dtadmi.tinylink.service.CounterService;
 import ca.dtadmi.tinylink.service.CryptoService;
+import ca.dtadmi.tinylink.service.MarshallService;
 import ca.dtadmi.tinylink.service.UrlPairService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,19 +14,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/api/tinylink/urlPairs")
 public class UrlPairController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final UrlPairService urlPairService;
     private final CounterService counterService;
     private final CryptoService cryptoService;
 
-    @Value("${client.base.url}")
-    private String clientBaseUrl;
+    @Value("${server.base.url}")
+    private String serverBaseUrl;
 
     @Value("${tiny.link.size}")
     private int tinyLinkSize;
@@ -34,6 +36,13 @@ public class UrlPairController {
         this.urlPairService = urlPairService;
         this.counterService = counterService;
         this.cryptoService = cryptoService;
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<UrlPair>> getUrlPairs(@RequestParam(defaultValue = "1") String page, @RequestParam(defaultValue = "1") String limit) throws ApiRuntimeException {
+        List<UrlPair> results = urlPairService.findAll();
+        results = MarshallService.paginateResults(page, limit, results);
+        return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @PostMapping("/shortUrl")
@@ -49,7 +58,7 @@ public class UrlPairController {
         int count = this.counterService.getCountFromZookeeper();
         String encryptedValue = this.cryptoService.base62EncodeLong(count);
         //Might be useless to substring since there are 62^tinyLinkSize possible results, even at 1000 shorts urls generated per second, it would take more than 26M years to reach the end...
-        String shortUrl = clientBaseUrl + encryptedValue.substring(0, Math.min(encryptedValue.length(), tinyLinkSize));
+        String shortUrl = serverBaseUrl + encryptedValue.substring(0, Math.min(encryptedValue.length(), tinyLinkSize));
         urlPair.setShortUrl(shortUrl);
         this.urlPairService.create(urlPair);
         return new ResponseEntity<>(shortUrl, HttpStatus.OK);
