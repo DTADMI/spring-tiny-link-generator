@@ -42,10 +42,11 @@ public class UrlPairController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<UrlPair>> getMostRecentlyAddedUrlPairs() throws ApiRuntimeException {
+    public ResponseEntity<List<UrlPair>> getMostRecentlyAddedUrlPairs(@RequestParam(defaultValue = "1") String page, @RequestParam(defaultValue = "1") String limit) throws ApiRuntimeException {
         List<UrlPair> results = urlPairService.findAll();
-        results = MarshallService.mostRecentResults(results, maxNumberHistoryResults);
-        return new ResponseEntity<>(results, HttpStatus.OK);
+        List<UrlPair> mostRecentResults = MarshallService.mostRecentResults(results, maxNumberHistoryResults);
+        List<UrlPair> paginatedMostRecentResults = MarshallService.paginateResults(page, limit, mostRecentResults);
+        return new ResponseEntity<>(paginatedMostRecentResults, HttpStatus.OK);
     }
 
     @PostMapping("/shortUrl")
