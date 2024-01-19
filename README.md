@@ -120,6 +120,10 @@ We faced an issue while trying to implement the self documentation tool for REST
 
 We decided not to do TDD on this application, as it might have taken more time than that allocated. Hence, the tests also went into the "maybe later" list.
 
+### Optimization issue
+
+The code could benefit from some optimization, but we decided to focus on solving the problem first, and optimize later if possible. Thus, optimization also went into the "maybe later" list.
+
 ### Deployment
 
 We decided not to deploy this application, as to have the best performance, it would require a kubernetes cluster or something similar, and that would be more costly than the budget for this application.
