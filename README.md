@@ -67,6 +67,8 @@ The specifications and assumptions taken for this application are as follows:
 
 * Being able to handle billions of entries/conversions
 * No concurrent access expected (we designed it nonetheless to be able to scale in that direction)
+* The generated URLs, domain excluded, should be 10 characters maximum
+* The conversion should be idempotent
 * Converted urls have to be long-lived (indefinitely)
 * The service should make the conversion itself, instead of rely on an external API
 * No authentication required
@@ -76,7 +78,7 @@ The specifications and assumptions taken for this application are as follows:
 
 ### Architecture
 
-We decided to implement a scalable system that could handle an important load of concurrent queries. For this reason, we decided to implement some rate limiting and load limiting strategies, along with some caching to improve performance when converting. 
+We decided to implement a scalable system that could handle an important load of concurrent queries. For this reason, we decided to have the url max length configurable ( tiny.link.size=10 ), and to implement some rate limiting and load limiting strategies, along with some caching to improve performance when converting. 
 
 It also helps to make the conversion idempotent (always return the same result for the same query), although that is mainly achieved by using a database to store the results. We decided on a DAO + service + controller strategy to handle the CRUD, as the data is not complex enough to warrant a Repository strategy. As a data model, we went with the following :
 
@@ -109,6 +111,10 @@ We also set some cors configuration to only allow the frontend application to co
 ### Swagger issue
 
 We faced an issue while trying to implement the self documentation tool for REST API swagger, as it kept colliding with our redirection url. Fearing not having enough time for everything we planed, we put it in the "maybe later" list.
+
+### Testing issue
+
+We decided not to do TDD on this application, as it might have taken more time than that allocated. Hence, the tests also went into the "maybe later" list.
 
 ### Example of requests
 
