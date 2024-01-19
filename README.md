@@ -22,6 +22,10 @@ Make sure both services are running, and that their endpoints are configures in 
 * zookeeper.server.url=localhost
 * zookeeper.server.port=2181
 
+The official docker image for zookeeper is available here : https://hub.docker.com/_/zookeeper .
+
+The same goes for redis here : https://hub.docker.com/_/redis . You can also use a provider like https://railway.app/ or the official redis cloud https://app.redislabs.com/ .
+
 As for the database, its configuration uses API keys that are configures in the secrets.properties file, for obvious reasons. A secrets.example.properties file were provided as reference.
 
 The application is configured to run on the specified port, but to run it in a distributed manner, you just have to change the port to 0 in the application.properties file:
@@ -115,6 +119,10 @@ We faced an issue while trying to implement the self documentation tool for REST
 ### Testing issue
 
 We decided not to do TDD on this application, as it might have taken more time than that allocated. Hence, the tests also went into the "maybe later" list.
+
+### Deployment
+
+We decided not to deploy this application, as to have the best performance, it would require a kubernetes cluster or something similar, and that would be more costly than the budget for this application.
 
 ### Example of requests
 
