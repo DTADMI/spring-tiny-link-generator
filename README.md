@@ -30,19 +30,6 @@ The application is configured to run on the specified port, but to run it in a d
 
 The application name is already configured to have a random id.
 
-packaged as a war which has Tomcat 8 embedded. No Tomcat or JBoss installation is necessary. You run it using the ```java -jar``` command.
-
-* Clone this repository
-* Make sure you are using JDK 1.8 and Maven 3.x
-* You can build the project and run the tests by running ```mvn clean package```
-* Once successfully built, you can run the service by one of these two methods:
-```
-        java -jar -Dspring.profiles.active=test target/spring-boot-rest-example-0.5.0.war
-or
-        mvn spring-boot:run -Drun.arguments="spring.profiles.active=test"
-```
-* Check the stdout or boot_example.log file to make sure no exceptions are thrown
-
 Once the application runs you should see something like this
 
 ```
@@ -115,6 +102,9 @@ That issue is solved if the counter is itself distributed, hence the use of a co
 For now, the counter issue is solved by zookeeper, the performance issue by using redis as a cache, and the idempotence by Firestore as a DB.
 
 That leaves the redirection. The best solution is to implement it on the server side, not the frontend, as the redirection would still be working without the client being up, as long as the backend is up. To try and have the shortest possible link, we set the redirection mapping at the root of the path "tinylink.ca/sdfs5f4d", instead of having a longer path like "tinylink.ca/redirect/sdfs5f4d" (where tinylink.ca is a made-up example of url of our server once deployed).
+
+We also set some cors configuration to only allow the frontend application to connect. Make sure the configuration is done on both side, before running the application. It looks like this, in the application.properties file:
+* client.base.url=http://localhost:7667/
 
 ### Swagger issue
 
