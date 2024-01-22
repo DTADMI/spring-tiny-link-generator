@@ -39,7 +39,7 @@ public class MarshallService {
                 .limit(maxNumberHistoryResults).toList();
     }
 
-    public static PaginatedUrlPairsResultDto paginateResults(String page, int perPage, List<UrlPair> urlPairs) {
+    public static PaginatedUrlPairsResultDto paginateResults(int page, int perPage, List<UrlPair> urlPairs) {
         if(urlPairs.isEmpty()) {
             return new PaginatedUrlPairsResultDto(urlPairs, new PaginatedUrlPairsResultDto.Metadata(1, 0, 0, 0));
         }
@@ -52,7 +52,7 @@ public class MarshallService {
         // Both cannot be less than 1 since pages start at 1, and we cannot take 0 elements
         int pageCount = Math.ceilDivExact(numberUrlPairs, perPage);
         int limitInt = Math.max(1, perPage);
-        int pageInt = Math.max(1, Math.min(Integer.parseInt(page), pageCount));
+        int pageInt = Math.max(1, Math.min(page, pageCount));
         int startIndex = Math.max(0, (pageInt - 1) * limitInt);
         int endIndex = Math.min(numberUrlPairs, (pageInt) * limitInt);
         logger.info("Getting sliced urlPairs from {} to {} excluded", startIndex, endIndex);

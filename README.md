@@ -116,10 +116,6 @@ We also set some cors configuration to only allow the frontend application to co
 
 We faced an issue while trying to implement the self documentation tool for REST API swagger, as it kept colliding with our redirection url. Fearing not having enough time for everything we planed, we put it in the "maybe later" list.
 
-### Testing issue
-
-We decided not to do TDD on this application, as it might have taken more time than that allocated. Hence, the tests also went into the "maybe later" list.
-
 ### Optimization issue
 
 The code could benefit from some optimization, but we decided to focus on solving the problem first, and optimize later if possible. Thus, optimization also went into the "maybe later" list.

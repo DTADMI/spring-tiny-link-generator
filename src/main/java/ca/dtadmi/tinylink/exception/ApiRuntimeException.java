@@ -31,6 +31,13 @@ public class ApiRuntimeException extends RuntimeException {
         this.errorDate = errorDate;
         this.cause = new RuntimeException(errorMessage);
     }
+    public ApiRuntimeException(String errorMessage, Date errorDate) {
+        super(errorMessage);
+        this.httpStatus  = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.errorMessage = errorMessage;
+        this.errorDate = errorDate;
+        this.cause = new RuntimeException(errorMessage);
+    }
 
     public ApiRuntimeException(HttpStatus httpStatus, String message, Date date, Throwable cause) {
         super(message);

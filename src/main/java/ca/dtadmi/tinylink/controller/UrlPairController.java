@@ -47,10 +47,15 @@ public class UrlPairController {
 
     @GetMapping("")
     public ResponseEntity<PaginatedUrlPairsResultDto> getMostRecentlyAddedUrlPairs(@RequestParam(defaultValue = "1") String page) throws ApiRuntimeException {
-        List<UrlPair> results = urlPairService.findAll();
-        List<UrlPair> mostRecentResults = MarshallService.mostRecentResults(results, maxNumberHistoryResults);
-        PaginatedUrlPairsResultDto paginatedMostRecentResults = MarshallService.paginateResults(page, maxNumberEntriesPerPage, mostRecentResults);
-        return new ResponseEntity<>(paginatedMostRecentResults, HttpStatus.OK);
+        try {
+            int pageInt = Integer.parseInt(page);
+            List<UrlPair> results = urlPairService.findAll();
+            List<UrlPair> mostRecentResults = MarshallService.mostRecentResults(results, maxNumberHistoryResults);
+            PaginatedUrlPairsResultDto paginatedMostRecentResults = MarshallService.paginateResults(pageInt, maxNumberEntriesPerPage, mostRecentResults);
+            return new ResponseEntity<>(paginatedMostRecentResults, HttpStatus.OK);
+        } catch (NumberFormatException e) {
+            throw new ApiRuntimeException(HttpStatus.BAD_REQUEST, "Parameter page is not a number.", new Date(), e);
+        }
     }
 
     @PostMapping("/shortUrl")

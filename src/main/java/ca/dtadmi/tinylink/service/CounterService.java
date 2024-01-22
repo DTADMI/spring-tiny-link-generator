@@ -1,12 +1,15 @@
 package ca.dtadmi.tinylink.service;
 
 import ca.dtadmi.tinylink.exception.ApiRuntimeException;
+import lombok.Setter;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -15,6 +18,7 @@ import org.apache.curator.framework.recipes.shared.SharedCount;
 import org.apache.curator.retry.RetryNTimes;
 
 @Service
+@Setter
 public class CounterService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -25,13 +29,22 @@ public class CounterService {
     @Value("${zookeeper.server.port}")
     private String zookeeperPort;
 
-    public static Integer getCount() {
+    public static synchronized Integer getCount() {
         return count.incrementAndGet();
     }
-    public Integer getCountFromZookeeper() {
-        try (CuratorFramework client = CuratorFrameworkFactory.newClient(zookeeperUrl + ":" + zookeeperPort, 10000, 10000, new RetryNTimes(3, 1000))) {
+    public synchronized Integer getCountFromZookeeper() {
+        try (CuratorFramework client = CuratorFrameworkFactory.newClient(zookeeperUrl + ":" + zookeeperPort, 3000, 3000, new RetryNTimes(3, 1000))) {
+            if(client==null) {
+                throw new ApiRuntimeException("Zookeeper client could not be created at " + zookeeperUrl + ":" + zookeeperPort, new Date());
+            }
             client.start();
-            client.blockUntilConnected();
+            if(!client.getState().equals(CuratorFrameworkState.STARTED)) {
+                throw new ApiRuntimeException("Zookeeper client not responding", new Date());
+            }
+            boolean connected = client.blockUntilConnected(10, TimeUnit.SECONDS);
+            if(!connected) {
+                throw new ApiRuntimeException("Zookeeper client not responding", new Date());
+            }
             return counter(client);
         } catch (Exception e) {
             Thread.currentThread().interrupt();

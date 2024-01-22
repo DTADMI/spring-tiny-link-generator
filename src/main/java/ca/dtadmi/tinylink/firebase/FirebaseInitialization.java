@@ -43,7 +43,12 @@ public class FirebaseInitialization {
                     .setCredentials(GoogleCredentials.fromStream(strInputStream))
                     .build();
 
-            FirebaseApp.initializeApp(options);
+            if (FirebaseApp.getApps().isEmpty())
+            {
+                FirebaseApp.initializeApp(options);
+            } else {
+                FirebaseApp.getInstance();
+            }
             db = FirestoreClient.getFirestore();
             urlPairCollection = db.collection(COLLECTION_NAME);
         } catch (IOException e) {
