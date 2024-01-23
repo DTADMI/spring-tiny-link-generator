@@ -19,7 +19,6 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
           cache: 'maven'
-          cache-dependency-path: 'sub-project/pom.xml' # optional
       - name: Build with Maven
         run: mvn clean install
 
