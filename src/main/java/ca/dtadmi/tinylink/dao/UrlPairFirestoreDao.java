@@ -15,11 +15,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Component
-public class UrlPairDao implements Dao<UrlPair> {
+public class UrlPairFirestoreDao implements Dao<UrlPair> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public Optional<UrlPair> get(String id) {
+    public Optional<UrlPair> findById(String id) {
         try {
             DocumentReference docRef = FirebaseInitialization.getUrlPairCollection().document(id);
             // asynchronously retrieve the document
@@ -43,7 +43,7 @@ public class UrlPairDao implements Dao<UrlPair> {
     }
 
     @Override
-    public Collection<UrlPair> getAll() {
+    public Collection<UrlPair> findAll() {
         try {
             // asynchronously retrieve all documents
             ApiFuture<QuerySnapshot> future = FirebaseInitialization.getUrlPairCollection().get();
@@ -90,24 +90,26 @@ public class UrlPairDao implements Dao<UrlPair> {
     }
 
     @Override
-    public void delete(String id) {
-        try {
-            // asynchronously delete a document
-            ApiFuture<WriteResult> writeResult = FirebaseInitialization.getUrlPairCollection().document(id).delete();
-
-            logger.debug("Delete time : {}", writeResult.get().getUpdateTime());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            throw new ApiRuntimeException(e.getMessage(), new Date(), e);
-        }
+    public void deleteAllById(List<String> ids) {
+        ids.forEach(id -> {
+            try {
+                // asynchronously delete a document
+                ApiFuture<WriteResult> writeResult = FirebaseInitialization.getUrlPairCollection().document(id).delete();
+                logger.debug("Delete time : {}", writeResult.get().getUpdateTime());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ApiRuntimeException(e.getMessage(), new Date(), e);
+            } catch (ExecutionException e) {
+                throw new ApiRuntimeException(e.getMessage(), new Date(), e);
+            }
+        });
     }
 
     @Override
     public void deleteAll() {
-        List<UrlPair> urlPairs = getAll().stream().toList();
+        List<UrlPair> urlPairs = findAll().stream().toList();
         if(!urlPairs.isEmpty()) {
-            urlPairs.forEach(urlPair -> delete(urlPair.getId()));
+            urlPairs.forEach(urlPair -> deleteAllById(List.of(urlPair.getId())));
         }
     }
 }

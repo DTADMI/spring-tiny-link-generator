@@ -1,6 +1,7 @@
 package ca.dtadmi.tinylink.controller;
 
 import ca.dtadmi.tinylink.dto.PaginatedUrlPairsResultDto;
+import ca.dtadmi.tinylink.dto.UrlPairDto;
 import ca.dtadmi.tinylink.exception.ApiRuntimeException;
 import ca.dtadmi.tinylink.model.UrlPair;
 import ca.dtadmi.tinylink.service.*;
@@ -67,15 +68,20 @@ class UrlPairControllerTest {
     @DisplayName("Should create a new short url and return it when making a POST request to /api/tinylink/urlPairs/shortUrl")
     void test_fromLongToShortUrl_validUrlPair() {
         // Mock dependencies
-        UrlPair urlPair = new UrlPair("1", "https://www.example.com", null, null);
-        when(urlPairService.findByLongUrl(urlPair.getLongUrl())).thenReturn(null);
+        UrlPairDto urlPairDto = new UrlPairDto("1", "https://www.example.com", null, null);
+        when(urlPairService.findByLongUrl(urlPairDto.getLongUrl())).thenReturn(null);
         when(counterService.getCountFromZookeeper()).thenReturn(7);
         when(cryptoService.base62EncodeLong(7)).thenReturn("abc");
+        UrlPair urlPair = new UrlPair(urlPairDto);
         urlPair.setShortUrl("https://tinylink.com/abc");
-        doNothing().when(urlPairService).create(urlPair);
+        doNothing().when(urlPairService).create(any(UrlPair.class));
+        urlPairController.setServerBaseUrl("https://tinylink.com/");
+        urlPairController.setMaxNumberHistoryResults(10);
+        urlPairController.setMaxNumberEntriesPerPage(3);
+        urlPairController.setTinyLinkSize(10);
 
         // Invoke the controller method
-        ResponseEntity<String> response = urlPairController.fromLongToShortUrl(urlPair);
+        ResponseEntity<String> response = urlPairController.fromLongToShortUrl(urlPairDto);
 
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -87,11 +93,12 @@ class UrlPairControllerTest {
     @DisplayName("Should return the corresponding existing short url when making a POST request to /api/tinylink/urlPairs/shortUrl with an existing long url")
     void test_fromLongToShortUrl_existingLongUrl() {
         // Mock dependencies
-        UrlPair urlPair = new UrlPair("1", "https://www.example.com", "https://tinylink.com/abc", "Thu Jan 18 18:44:00 EST 2024");
-        when(urlPairService.findByLongUrl(urlPair.getLongUrl())).thenReturn(urlPair);
+        UrlPairDto urlPairDto = new UrlPairDto("1", "https://www.example.com", "https://tinylink.com/abc", "Thu Jan 18 18:44:00 EST 2024");
+        UrlPair urlPair = new UrlPair(urlPairDto);
+        when(urlPairService.findByLongUrl(urlPairDto.getLongUrl())).thenReturn(urlPair);
 
         // Invoke the controller method
-        ResponseEntity<String> response = urlPairController.fromLongToShortUrl(urlPair);
+        ResponseEntity<String> response = urlPairController.fromLongToShortUrl(urlPairDto);
 
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -130,7 +137,7 @@ class UrlPairControllerTest {
         when(urlPairService.findAll()).thenReturn(List.of(urlPair));
 
         // Create request body
-        UrlPair requestBody = new UrlPair();
+        UrlPairDto requestBody = new UrlPairDto();
         requestBody.setShortUrl(shortUrl);
 
         // Invoke the controller method
@@ -148,7 +155,7 @@ class UrlPairControllerTest {
         doNothing().when(urlPairService).removeAll();
 
         // Invoke the controller method
-        ResponseEntity<UrlPair> response = urlPairController.deleteUrlPairs();
+        ResponseEntity<UrlPairDto> response = urlPairController.deleteUrlPairs();
 
         // Verify the response
         verify(urlPairService, times(1)).removeAll();
@@ -163,7 +170,7 @@ class UrlPairControllerTest {
         doNothing().when(urlPairService).remove(id);
 
         // Invoke the controller method
-        ResponseEntity<UrlPair> response = urlPairController.deleteUrlPairById(id);
+        ResponseEntity<UrlPairDto> response = urlPairController.deleteUrlPairById(id);
 
         // Verify the response
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
@@ -180,7 +187,7 @@ class UrlPairControllerTest {
         doNothing().when(urlPairService).remove(urlPair.getId());
 
         // Invoke the controller method
-        ResponseEntity<UrlPair> response = urlPairController.deleteUrlPairByLongUrl(longUrl);
+        ResponseEntity<UrlPairDto> response = urlPairController.deleteUrlPairByLongUrl(longUrl);
 
         // Verify the response
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
@@ -206,7 +213,7 @@ class UrlPairControllerTest {
         when(urlPairService.findByLongUrl(longUrl)).thenReturn(null);
 
         // Invoke the controller method
-        ResponseEntity<UrlPair> response = urlPairController.deleteUrlPairByLongUrl(longUrl);
+        ResponseEntity<UrlPairDto> response = urlPairController.deleteUrlPairByLongUrl(longUrl);
 
         // Verify the response
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

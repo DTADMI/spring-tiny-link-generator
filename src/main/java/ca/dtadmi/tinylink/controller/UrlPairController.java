@@ -1,15 +1,18 @@
 package ca.dtadmi.tinylink.controller;
 
 import ca.dtadmi.tinylink.dto.PaginatedUrlPairsResultDto;
+import ca.dtadmi.tinylink.dto.UrlPairDto;
 import ca.dtadmi.tinylink.exception.ApiRuntimeException;
 import ca.dtadmi.tinylink.model.UrlPair;
 import ca.dtadmi.tinylink.service.CounterService;
 import ca.dtadmi.tinylink.service.CryptoService;
 import ca.dtadmi.tinylink.service.MarshallService;
 import ca.dtadmi.tinylink.service.UrlPairService;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/tinylink/urlPairs")
+@CacheConfig(cacheNames = "urlCache")
 public class UrlPairController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final UrlPairService urlPairService;
@@ -28,15 +32,19 @@ public class UrlPairController {
     private final CryptoService cryptoService;
 
     @Value("${server.base.url}")
+    @Setter
     private String serverBaseUrl;
 
     @Value("${max.number.history.results}")
+    @Setter
     private int maxNumberHistoryResults;
 
     @Value("${max.number.entries.per.page}")
+    @Setter
     private int maxNumberEntriesPerPage;
 
     @Value("${tiny.link.size}")
+    @Setter
     private int tinyLinkSize;
 
     public UrlPairController(UrlPairService urlPairService, CounterService counterService, CryptoService cryptoService) {
@@ -59,11 +67,11 @@ public class UrlPairController {
     }
 
     @PostMapping("/shortUrl")
-    public ResponseEntity<String> fromLongToShortUrl(@RequestBody UrlPair urlPair) throws NoSuchElementException, ApiRuntimeException {
-        if(urlPair == null || urlPair.getLongUrl() == null || urlPair.getLongUrl().isBlank()) {
+    public ResponseEntity<String> fromLongToShortUrl(@RequestBody UrlPairDto urlPairDto) throws NoSuchElementException, ApiRuntimeException {
+        if(urlPairDto == null || urlPairDto.getLongUrl() == null || urlPairDto.getLongUrl().isBlank()) {
             throw new ApiRuntimeException(HttpStatus.BAD_REQUEST, "Parameter longUrl is empty.", new Date());
         }
-        String longUrl = urlPair.getLongUrl();
+        String longUrl = urlPairDto.getLongUrl();
         UrlPair urlPairInDB = this.urlPairService.findByLongUrl(longUrl);
         if(urlPairInDB != null) {
             return new ResponseEntity<>(urlPairInDB.getShortUrl(), HttpStatus.OK);
@@ -73,17 +81,19 @@ public class UrlPairController {
         // Might be useless to substring since there are 62^tinyLinkSize possible results,
         // even at 1000 shorts urls generated per second, it would take more than 26Ml years to reach the end...
         String shortUrl = serverBaseUrl + encryptedValue.substring(0, Math.min(encryptedValue.length(), tinyLinkSize));
+        UrlPair urlPair = new UrlPair(urlPairDto);
         urlPair.setShortUrl(shortUrl);
+        urlPair.setCreationDate(new Date().toString());
         this.urlPairService.create(urlPair);
         return new ResponseEntity<>(shortUrl, HttpStatus.OK);
     }
 
     @PostMapping("/longUrl")
-    public ResponseEntity<String> fromShortToLongUrl(@RequestBody UrlPair urlPair) throws NoSuchElementException, ApiRuntimeException {
-        if(urlPair == null || urlPair.getShortUrl() == null || urlPair.getShortUrl().isBlank()) {
+    public ResponseEntity<String> fromShortToLongUrl(@RequestBody UrlPairDto urlPairDto) throws NoSuchElementException, ApiRuntimeException {
+        if(urlPairDto == null || urlPairDto.getShortUrl() == null || urlPairDto.getShortUrl().isBlank()) {
             throw new ApiRuntimeException(HttpStatus.BAD_REQUEST, "Parameter shortUrl is empty.", new Date());
         }
-        String shortUrl = urlPair.getShortUrl();
+        String shortUrl = urlPairDto.getShortUrl();
         UrlPair urlPairInDB = this.urlPairService.findAll().stream().filter(Objects::nonNull).filter(pair -> pair.getShortUrl().equals(shortUrl)).findFirst().orElse(null);
         if(urlPairInDB != null) {
             return new ResponseEntity<>(urlPairInDB.getLongUrl(), HttpStatus.OK);
@@ -93,13 +103,13 @@ public class UrlPairController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity<UrlPair> deleteUrlPairs() throws NoSuchElementException, ApiRuntimeException {
+    public ResponseEntity<UrlPairDto> deleteUrlPairs() throws NoSuchElementException, ApiRuntimeException {
         urlPairService.removeAll();
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<UrlPair> deleteUrlPairById(@PathVariable String id) throws NoSuchElementException, ApiRuntimeException {
+    public ResponseEntity<UrlPairDto> deleteUrlPairById(@PathVariable String id) throws NoSuchElementException, ApiRuntimeException {
         if(id.isBlank()) {
             throw new ApiRuntimeException(HttpStatus.BAD_REQUEST, "Parameter id is empty.", new Date());
         }
@@ -108,7 +118,7 @@ public class UrlPairController {
     }
 
     @DeleteMapping("/byLongUrl")
-    public ResponseEntity<UrlPair> deleteUrlPairByLongUrl(@RequestParam(defaultValue = "") String longUrl) throws NoSuchElementException, ApiRuntimeException {
+    public ResponseEntity<UrlPairDto> deleteUrlPairByLongUrl(@RequestParam(defaultValue = "") String longUrl) throws NoSuchElementException, ApiRuntimeException {
         if(longUrl.isBlank()) {
             throw new ApiRuntimeException(HttpStatus.BAD_REQUEST, "Parameter longUrl is empty.", new Date());
         }

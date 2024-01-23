@@ -81,7 +81,7 @@ class UrlPairControllerIntegrationTest {
         when(counterService.getCountFromZookeeper()).thenReturn(7);
         when(cryptoService.base62EncodeLong(7)).thenReturn("abc");
         urlPair.setShortUrl(serverBaseUrl + "abc");
-        doNothing().when(urlPairService).create(urlPair);
+        doNothing().when(urlPairService).create(any(UrlPair.class));
 
         ObjectMapper mapper = new ObjectMapper();
 

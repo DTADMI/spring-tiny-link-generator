@@ -1,0 +1,26 @@
+version: "1"
+services:
+    redis:
+        image: redis:latest
+        container_name: redis-container
+        ports:
+            - 6379:6379
+    zookeeper:
+        image: zookeeper:latest
+        container_name: zookeeper-container
+        ports:
+            - 2181:2181
+    mongodb:
+        image: mongo:latest
+        container_name: mongodb-container
+        ports:
+            - 27017:27017
+    spring-tiny-link-generator-api:
+        image: spring-tiny-link-generator-api:latest
+        container_name: spring-tiny-link-generator-api
+        ports:
+            - 7787:7787
+        links:
+          - redis
+          - zookeeper
+          - mongodb
