@@ -151,6 +151,22 @@ To run it locally:
 
 These are the steps executed, in that order, by the CI/CD GitHub action.
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+When running locally, make sure to remove the dockerhub id from the API docker image name, in order to pull the local image previously built instead of the remote one. The remote image won't be able to connect to the images running on the local machine.
+
+From:     
+* spring-tiny-link-generator-api:
+    image: <dockerhub id>/spring-tiny-link-generator-api:latest
+    container_name: spring-tiny-link-generator-api
+To:     
+* spring-tiny-link-generator-api:
+    image: spring-tiny-link-generator-api:latest
+    container_name: spring-tiny-link-generator-api
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 ### Example of requests
 
 * Get most recent conversions : http://localhost:7787/api/tinylink/urlPairs?page=1
