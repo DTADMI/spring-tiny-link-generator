@@ -22,7 +22,7 @@ services:
         ports:
             - 27017:27017
     spring-tiny-link-generator-api:
-        image: spring-tiny-link-generator-api:latest
+        image: darryltadmi/spring-tiny-link-generator-api:latest
         container_name: spring-tiny-link-generator-api
         restart: always
         ports:
