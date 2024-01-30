@@ -20,27 +20,27 @@ public class FirebaseConfigHelper {
     private final String universeDomain;
 
     public FirebaseConfigHelper(
-        @Value("${secret.type}")
+        @Value("${firestore.type}")
         String type,
-        @Value("${secret.project_id}")
+        @Value("${firestore.project_id}")
         String projectId,
-        @Value("${secret.private_key_id}")
+        @Value("${firestore.private_key_id}")
         String privateKeyId,
-        @Value("${secret.private_key}")
+        @Value("${firestore.private_key}")
         String privateKey,
-        @Value("${secret.client_email}")
+        @Value("${firestore.client_email}")
         String clientEmail,
-        @Value("${secret.client_id}")
+        @Value("${firestore.client_id}")
         String clientId,
-        @Value("${secret.auth_uri}")
+        @Value("${firestore.auth_uri}")
         String authUri,
-        @Value("${secret.token_uri}")
+        @Value("${firestore.token_uri}")
         String tokenUri,
-        @Value("${secret.auth_provider_x509_cert_url}")
+        @Value("${firestore.auth_provider_x509_cert_url}")
         String authProviderX509CertUrl,
-        @Value("${secret.client_x509_cert_url}")
+        @Value("${firestore.client_x509_cert_url}")
         String clientX509CertUrl,
-        @Value("${secret.universe_domain}")
+        @Value("${firestore.universe_domain}")
         String universeDomain
     ) {
         this.type = type;
