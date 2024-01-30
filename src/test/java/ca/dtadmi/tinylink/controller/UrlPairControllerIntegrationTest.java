@@ -33,9 +33,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = {ServletWebServerFactoryAutoConfiguration.class},
+        webEnvironment = RANDOM_PORT)
 @ContextConfiguration(classes = {AppConfig.class})
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 class UrlPairControllerIntegrationTest {
 

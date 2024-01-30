@@ -13,8 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(classes = {ServletWebServerFactoryAutoConfiguration.class},
-        webEnvironment = RANDOM_PORT,
-        properties = {"spring.cloud.config.enabled=false"})
+        webEnvironment = RANDOM_PORT)
 @ContextConfiguration(classes = {AppConfig.class})
 @ExtendWith(SpringExtension.class)
 class TinyLinkApplicationTests {
