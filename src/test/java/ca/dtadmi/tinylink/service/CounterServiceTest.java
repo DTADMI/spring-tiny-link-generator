@@ -70,7 +70,7 @@ class CounterServiceTest {
     @Test
     @DisplayName("Should throw ApiRuntimeException when unable to connect to Zookeeper")
     void test_zookeeper_is_down_method_throws_ApiRuntimeException() {
-        counterService.setZookeeperUrl("xxxxxxxx");
+        counterService.setZookeeperUrl("invalid_url");
         counterService.setZookeeperPort("1234");
 
         assertThrows(ApiRuntimeException.class, () -> {
