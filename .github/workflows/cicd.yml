@@ -19,6 +19,15 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
           cache: 'maven'
+
+      - name: Add secrets.properties to application.properties
+        env:
+          SECRETS_PROPERTIES: ${{ secrets.SECRETS_PROPERTIES }}
+        shell: bash
+        run: |
+              echo "$SECRETS_PROPERTIES" >> src/main/resources/application.properties
+              cat src/main/resources/application.properties
+
       - name: Build with Maven
         run: mvn clean install
 
