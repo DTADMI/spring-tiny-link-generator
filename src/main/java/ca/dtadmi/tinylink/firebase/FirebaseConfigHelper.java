@@ -19,7 +19,6 @@ public class FirebaseConfigHelper {
     private final String clientX509CertUrl;
     private final String universeDomain;
 
-    @Autowired
     public FirebaseConfigHelper(
         @Value("${secret.type}")
         String type,
