@@ -22,9 +22,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean install -Dmaven.test.skip=true
 
-  docker:
-    runs-on: ubuntu-latest
-    steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
