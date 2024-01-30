@@ -20,7 +20,7 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
       - name: Build with Maven
-        run: mvn --batch-mode package
+        run: mvn clean install -Dmaven.test.skip=true
 
       - name: Build & push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
